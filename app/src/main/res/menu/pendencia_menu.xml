@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menuRefazer"
+        android:icon="@drawable/ic_redo"
+        android:title="Refazer"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menuDesfazer"
+        android:icon="@drawable/ic_undo"
+        android:title="Desfazer"
+        android:enabled="false"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menuLembrete"
+        android:title="Definir lembrete"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_alarm" />
+
+    <item
+        android:id="@+id/menuSalvar"
+        android:title="Salvar"
+        android:enabled="false"
+        app:showAsAction="always" />
+
+</menu>

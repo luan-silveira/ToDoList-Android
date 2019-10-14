@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">ToDoList</string>
+    <string name="url_inserir_pendencia">http://192.168.0.11/luan/teste_php/rest.php?f=insertPendencia</string>
+    <string name="url_atualizar_pendencia">http://192.168.0.11/luan/teste_php/rest.php?f=updatePendencia</string>
+    <string name="url_sync_pendencias">http://192.168.0.11/luan/teste_php/rest.php?f=sincronizarPendencias</string>
+</resources>
