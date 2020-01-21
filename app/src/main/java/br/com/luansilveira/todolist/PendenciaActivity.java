@@ -138,7 +138,7 @@ public class PendenciaActivity extends AppCompatActivity {
                             Log.i(getClass().getSimpleName(), "Pendência salva");
                             pendencia.setSync(true);
                             daoPendencias.update(pendencia);
-                            sendBroadcast(new Intent(MainActivity.BROADCAST_ATUALIZAR_LISTA));
+                            sendBroadcast(new Intent(MainActivity.BROADCAST_CONNECTIVITY_CHANGE));
                         } else {
                             Log.i(getClass().getSimpleName(), "Erro ao salvar pendência:\n" + result1.getString("mensagem"));
                         }

@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
@@ -39,7 +41,7 @@ import br.com.luansilveira.todolist.utils.JSON;
 
 public class MainActivity extends AppCompatActivity implements AbsListView.MultiChoiceModeListener {
 
-    public static final String BROADCAST_ATUALIZAR_LISTA = "br.com.luansilveira.todolist.BROADCAST_ATUALIZAR_LISTA";
+    public static final String BROADCAST_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
     private static final int REQUEST_PENDENCIA = 0xFF;
     private ListView listView;
     private ListPendenciasAdapter adapter;
@@ -47,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
     private List<Pendencia> listPendenciasSync;
     private TextView txtVazio;
     private Dao<Pendencia, Integer> daoPendencias;
-    private BroadcastReceiver serverUpdateReceiver;
 
     private MenuItem menuSync;
 
@@ -75,17 +76,23 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
             e.printStackTrace();
         }
 
-        this.serverUpdateReceiver = new BroadcastReceiver() {
+        registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.i(getClass().getSimpleName(), "Atualizando lista...");
-                atualizarLista();
+                if (isOnline(MainActivity.this)) {
+                    Log.i(getClass().getSimpleName(), "Atualizando lista...");
+                    sincronizarPendenciasServidor();
+                }
             }
-        };
-
-        registerReceiver(this.serverUpdateReceiver, new IntentFilter(BROADCAST_ATUALIZAR_LISTA));
+        }, new IntentFilter(BROADCAST_CONNECTIVITY_CHANGE));
 
         sincronizarPendenciasServidor();
+    }
+
+    private boolean isOnline(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return (netInfo != null && netInfo.isConnected());
     }
 
     public void buttonMaisClick(View view) {

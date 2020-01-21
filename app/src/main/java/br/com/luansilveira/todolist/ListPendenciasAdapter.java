@@ -127,7 +127,7 @@ public class ListPendenciasAdapter extends ArrayAdapter<Pendencia> {
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
-        this.selection = new boolean[getCount()];
+        if (!this.actionMode) this.selection = new boolean[getCount()];
     }
 
 
