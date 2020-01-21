@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -22,8 +24,51 @@ import br.com.luansilveira.todolist.utils.DateCalendar;
 
 public class ListPendenciasAdapter extends ArrayAdapter<Pendencia> {
 
+    private List<Pendencia> listSelect = new ArrayList<>();
+    private List<Pendencia> listFiter = new ArrayList<>();
+    private boolean[] selection;
+    private boolean actionMode = false;
+
     public ListPendenciasAdapter(@NonNull Context context, @NonNull List<Pendencia> objects) {
         super(context, 0, objects);
+        resetSelection();
+    }
+
+    public void resetSelection() {
+        this.selection = new boolean[getCount()];
+        this.listSelect.clear();
+    }
+
+    public ListPendenciasAdapter setActionMode(boolean actionMode) {
+        this.actionMode = actionMode;
+        if (!actionMode) resetSelection();
+        return this;
+    }
+
+    public void setSelection(int position, boolean selected) {
+        this.selection[position] = selected;
+        Pendencia p = getItem(position);
+        if (selected) listSelect.add(p);
+        else listSelect.remove(p);
+        notifyDataSetChanged();
+    }
+
+    public void selecionarTudo() {
+        for (int i = 0; i < getCount(); i++) {
+            selection[i] = true;
+            listSelect.add(getItem(i));
+        }
+
+        notifyDataSetChanged();
+    }
+
+
+    public int getCountSelected() {
+        return this.listSelect.size();
+    }
+
+    public List<Pendencia> getSelectedItems() {
+        return this.listSelect;
     }
 
     @NonNull
@@ -33,6 +78,10 @@ public class ListPendenciasAdapter extends ArrayAdapter<Pendencia> {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.layout_list_pendencias, parent, false);
         }
+
+        CheckBox checkBox = convertView.findViewById(R.id.checkBox);
+        checkBox.setVisibility(this.actionMode ? View.VISIBLE : View.GONE);
+        if (actionMode) checkBox.setChecked(selection[position]);
 
         TextView txtTitulo = convertView.findViewById(R.id.txtTitulo);
         TextView txtDescricao = convertView.findViewById(R.id.txtDescricao);
@@ -74,4 +123,12 @@ public class ListPendenciasAdapter extends ArrayAdapter<Pendencia> {
 
         return new SimpleDateFormat(format, new Locale("pt", "BR")).format(date);
     }
+
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        this.selection = new boolean[getCount()];
+    }
+
+
 }

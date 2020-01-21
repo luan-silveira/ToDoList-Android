@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible"
+        android:choiceMode="multipleChoiceModal"
         tools:listitem="@layout/layout_list_pendencias" />
 
     <TextView

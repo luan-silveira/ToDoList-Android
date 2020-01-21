@@ -2,76 +2,94 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
     android:orientation="vertical"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp"
     android:paddingStart="10dp"
+    android:paddingTop="5dp"
     android:paddingEnd="10dp"
-    android:animateLayoutChanges="true">
+    android:background="@drawable/background_list_seletor"
+    android:paddingBottom="5dp">
 
-    <TextView
-        android:id="@+id/txtDataHora"
+    <CheckBox
+        android:id="@+id/checkBox"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="hoje às 18:15"
-        android:textSize="12sp" />
-
-    <TextView
-        android:id="@+id/txtTitulo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/txtDataHora"
-        android:layout_marginTop="8dp"
-        android:text="Título"
-        android:textColor="@color/color_preto_titulo"
-        android:textSize="17sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/txtDescricao"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/txtTitulo"
-        android:layout_marginTop="7dp"
-        android:text="Descrição e anotações"
-        android:maxLines="3"
-        android:ellipsize="end"
-        android:textColor="@color/color_cinza_escuro" />
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:clickable="false"
+        android:focusable="false"
+        android:visibility="gone"
+        android:layout_marginEnd="5dp" />
 
     <RelativeLayout
-        android:id="@+id/layoutLembrete"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/txtDescricao"
-        android:layout_marginTop="8dp"
-        android:visibility="invisible">
+        android:layout_toEndOf="@id/checkBox">
 
-        <ImageView
-            android:id="@+id/imgAlarm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/txtLembrete"
-            android:layout_alignBottom="@id/txtLembrete"
-            android:tint="?attr/colorAccent"
-            android:src="@drawable/ic_alarm" />
 
         <TextView
-            android:id="@+id/txtLembrete"
+            android:id="@+id/txtDataHora"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/imgAlarm"
-            android:text="12 jan ás 17:30"
-            android:textColor="?attr/colorAccent"
-            android:textSize="10sp" />
+            android:text="hoje às 18:15"
+            android:textSize="12sp" />
 
+        <TextView
+            android:id="@+id/txtTitulo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txtDataHora"
+            android:layout_marginTop="8dp"
+            android:text="Título"
+            android:textColor="@color/color_preto_titulo"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtDescricao"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txtTitulo"
+            android:layout_marginTop="7dp"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:text="Descrição e anotações"
+            android:textColor="@color/color_cinza_escuro" />
+
+        <RelativeLayout
+            android:id="@+id/layoutLembrete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txtDescricao"
+            android:layout_marginTop="8dp"
+            android:visibility="invisible">
+
+            <ImageView
+                android:id="@+id/imgAlarm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/txtLembrete"
+                android:layout_alignBottom="@id/txtLembrete"
+                android:src="@drawable/ic_alarm"
+                android:tint="?attr/colorAccent" />
+
+            <TextView
+                android:id="@+id/txtLembrete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/imgAlarm"
+                android:text="12 jan ás 17:30"
+                android:textColor="?attr/colorAccent"
+                android:textSize="10sp" />
+
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/imgSync"
+            android:layout_width="wrap_content"
+            android:layout_height="18dp"
+            android:layout_alignBottom="@id/layoutLembrete"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/ic_sync_wait" />
     </RelativeLayout>
-
-    <ImageView
-        android:id="@+id/imgSync"
-        android:layout_width="wrap_content"
-        android:layout_height="18dp"
-        android:layout_alignBottom="@id/layoutLembrete"
-        android:layout_alignParentEnd="true"
-        android:src="@drawable/ic_sync_wait" />
 
 </RelativeLayout>

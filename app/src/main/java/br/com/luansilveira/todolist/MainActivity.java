@@ -6,14 +6,17 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.j256.ormlite.dao.Dao;
@@ -34,13 +37,14 @@ import br.com.luansilveira.todolist.db.Model.Pendencia;
 import br.com.luansilveira.todolist.utils.HttpRequest;
 import br.com.luansilveira.todolist.utils.JSON;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AbsListView.MultiChoiceModeListener {
 
     public static final String BROADCAST_ATUALIZAR_LISTA = "br.com.luansilveira.todolist.BROADCAST_ATUALIZAR_LISTA";
     private static final int REQUEST_PENDENCIA = 0xFF;
     private ListView listView;
     private ListPendenciasAdapter adapter;
     private List<Pendencia> listPendencias;
+    private List<Pendencia> listPendenciasSync;
     private TextView txtVazio;
     private Dao<Pendencia, Integer> daoPendencias;
     private BroadcastReceiver serverUpdateReceiver;
@@ -53,12 +57,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         listView = findViewById(R.id.listView);
+        listView.setMultiChoiceModeListener(this);
         txtVazio = findViewById(R.id.txtVazio);
         listPendencias = new ArrayList<>();
 
         try {
             carregarLista();
-
 
             adapter = new ListPendenciasAdapter(this, listPendencias);
             listView.setAdapter(adapter);
@@ -90,9 +94,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void carregarLista() throws SQLException {
         daoPendencias = DB.get(this).getDao(Pendencia.class);
-        listPendencias = daoPendencias.queryForEq("deleted", false);
+        listPendenciasSync = daoPendencias.queryForAll();
+        filtrarEOrdenarLista();
         mostrarLista();
-        ordenarListaPorData();
     }
 
     private void mostrarLista() {
@@ -101,16 +105,26 @@ public class MainActivity extends AppCompatActivity {
         listView.setVisibility(!vazio ? View.VISIBLE : View.GONE);
     }
 
-    private void ordenarListaPorData() {
+    /**
+     * Ordena a lista por data e filtra os itens não excluídos;
+     */
+    private void filtrarEOrdenarLista() {
+        //-- Mostra apenas os itens que não estão marcados como excluídos.
+        listPendencias.clear();
+        for (Pendencia p : listPendenciasSync) {
+            if (!p.isDeleted()) listPendencias.add(p);
+        }
+
+        //-- Ordena por data
         Collections.sort(listPendencias, (o1, o2) -> o2.getDataHora().compareTo(o1.getDataHora()));
     }
 
     private synchronized void atualizarLista() {
         try {
-            List<Pendencia> list = daoPendencias.queryForEq("deleted", false);
-            this.listPendencias.clear();
-            this.listPendencias.addAll(list);
-            ordenarListaPorData();
+            List<Pendencia> list = daoPendencias.queryForAll();
+            this.listPendenciasSync.clear();
+            this.listPendenciasSync.addAll(list);
+            filtrarEOrdenarLista();
             adapter.notifyDataSetChanged();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -126,7 +140,8 @@ public class MainActivity extends AppCompatActivity {
         JSONArray jsonArray = new JSONArray();
 
         try {
-            for (Pendencia pendencia : listPendencias) {
+
+            for (Pendencia pendencia : listPendenciasSync) {
                 JSONObject obj = JSON.parseObj(pendencia);
                 jsonArray.put(obj);
             }
@@ -137,13 +152,13 @@ public class MainActivity extends AppCompatActivity {
                     if (result.has("erro")) {
                         Log.i(getClass().getSimpleName(), "Erro ao sincronizar");
                     } else {
-                        this.listPendencias.clear();
+                        this.listPendenciasSync.clear();
                         for (Iterator<JSONObject> iterator = result.iterator(JSONObject.class); iterator.hasNext(); ) {
                             JSONObject obj = iterator.next();
-                            this.listPendencias.add(JSON.parseJsonToObject(obj, Pendencia.class));
+                            this.listPendenciasSync.add(JSON.parseJsonToObject(obj, Pendencia.class));
                         }
                         TableUtils.clearTable(DB.get(this).getConnectionSource(), Pendencia.class);
-                        daoPendencias.create(listPendencias);
+                        daoPendencias.create(listPendenciasSync);
 
                         atualizarLista();
                     }
@@ -158,6 +173,43 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void excluirPendencias(ActionMode mode, List<Pendencia> pendencias) {
+        new AlertDialog.Builder(this).setTitle("Excluir")
+                .setMessage("Deseja excluir os registros selecionados?")
+                .setPositiveButton("Sim", (dialog, which) -> {
+                    try {
+                        for (Pendencia p : pendencias) {
+                            p.setDeleted(true);
+                            daoPendencias.update(p);
+                        }
+                        excluirPendenciasServidor(pendencias);
+                        mode.finish();
+                        atualizarLista();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }).setNegativeButton("Não", null).show();
+    }
+
+    private void excluirPendenciasServidor(List<Pendencia> pendencias) {
+        JSONArray array = new JSONArray();
+        for (Pendencia p : pendencias) {
+            array.put(p.getId());
+        }
+
+        HttpRequest.post(getString(R.string.url_excluir_pendencias)).appendData("ids", array)
+                .setRequestDoneListener(result -> {
+                    try {
+                        if (result.has("sucesso")) {
+                            daoPendencias.delete(pendencias);
+                            atualizarLista();
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }).send();
     }
 
     @Override
@@ -185,5 +237,38 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        getMenuInflater().inflate(R.menu.list_select_menu, menu);
+        adapter.setActionMode(true);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return true;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        if (item.getItemId() == R.id.menuDelete) {
+            excluirPendencias(mode, adapter.getSelectedItems());
+        }
+
+        return true;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        adapter.setActionMode(false);
+    }
+
+    @Override
+    public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+        adapter.setSelection(position, checked);
+        int count = adapter.getCountSelected();
+        mode.setTitle(count + " selecionado" + (count > 1 ? "s" : ""));
     }
 }
