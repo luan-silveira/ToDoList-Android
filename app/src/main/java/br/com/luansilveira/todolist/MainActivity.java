@@ -41,7 +41,7 @@ import br.com.luansilveira.todolist.utils.JSON;
 
 public class MainActivity extends AppCompatActivity implements AbsListView.MultiChoiceModeListener {
 
-    public static final String BROADCAST_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
+    public static final String BROADCAST_ATUALIZAR_LISTA = "br.com.luansivleira.todolist.BROADCAST_ATUALIZAR_LISTA";
     private static final int REQUEST_PENDENCIA = 0xFF;
     private ListView listView;
     private ListPendenciasAdapter adapter;
@@ -79,12 +79,19 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
         registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                Log.i(getClass().getSimpleName(), "Atualizando lista...");
+                atualizarLista();
+            }
+        }, new IntentFilter(BROADCAST_ATUALIZAR_LISTA));
+
+        registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
                 if (isOnline(MainActivity.this)) {
-                    Log.i(getClass().getSimpleName(), "Atualizando lista...");
                     sincronizarPendenciasServidor();
                 }
             }
-        }, new IntentFilter(BROADCAST_CONNECTIVITY_CHANGE));
+        }, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
 
         sincronizarPendenciasServidor();
     }
