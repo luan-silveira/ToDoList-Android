@@ -25,6 +25,7 @@ import java.util.Locale;
 
 import br.com.luansilveira.todolist.db.DB;
 import br.com.luansilveira.todolist.db.Model.Pendencia;
+import br.com.luansilveira.todolist.utils.DatetimePicker.DatetimePickerDialog;
 import br.com.luansilveira.todolist.utils.HttpRequest;
 
 public class PendenciaActivity extends AppCompatActivity {
@@ -176,6 +177,11 @@ public class PendenciaActivity extends AppCompatActivity {
             case R.id.menuSalvar:
                 salvarPendencia();
                 break;
+
+            case R.id.menuLembrete:
+                new DatetimePickerDialog(this).setOnConfirmDateListener(date -> {
+                    Toast.makeText(this, new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(date), Toast.LENGTH_LONG).show();
+                }).show();
         }
 
         return true;

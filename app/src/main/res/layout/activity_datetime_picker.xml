@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TabHost
+        android:id="@+id/tabHost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="23 de janeiro de 2019"
+                android:layout_below="@android:id/tabs"
+                android:padding="10px"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:id="@+id/txtData" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="16:50"
+                android:layout_alignTop="@id/txtData"
+                android:padding="8px"
+                android:textSize="18sp"
+                android:layout_alignParentEnd="true"
+                android:id="@+id/txtHora" />
+
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/txtData">
+
+                <RelativeLayout
+                    android:id="@+id/tab1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <DatePicker
+                        android:id="@+id/datePicker"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true" />
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/tab2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TimePicker
+                        android:id="@+id/timePicker"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+            </FrameLayout>
+
+        </RelativeLayout>
+    </TabHost>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tabHost"
+        android:id="@+id/btCancelar"
+        android:text="Cancelar"
+        android:layout_toStartOf="@id/separador"
+        style="@android:style/Widget.Material.Button.Borderless"
+        android:layout_alignParentStart="true"
+        android:onClick="btVoltarClick"
+        android:textColor="?attr/colorAccent" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="40dp"
+        android:visibility="invisible"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/tabHost"
+        android:id="@+id/separador" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tabHost"
+        android:text="Salvar"
+        android:id="@+id/btSalvar"
+        android:layout_toEndOf="@id/separador"
+        style="@android:style/Widget.Material.Button.Borderless"
+        android:layout_alignParentEnd="true"
+        android:onClick="btSalvarClick"
+        android:textColor="?attr/colorAccent" />
+
+</RelativeLayout>
