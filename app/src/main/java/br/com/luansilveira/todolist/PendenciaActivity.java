@@ -1,5 +1,7 @@
 package br.com.luansilveira.todolist;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -36,6 +38,7 @@ public class PendenciaActivity extends AppCompatActivity {
     EditText edDescricao;
 
     MenuItem menuSalvar;
+    MenuItem menuLembrete;
 
     TextView txtDataLembrete;
     View layoutLembretePendencia;
@@ -179,8 +182,8 @@ public class PendenciaActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.pendencia_menu, menu);
         this.menuSalvar = menu.findItem(R.id.menuSalvar);
 
-        MenuItem menuLembrete = menu.findItem(R.id.menuLembrete);
-        menuLembrete.getSubMenu().setGroupVisible(R.id.groupLembrete, this.pendencia.hasLembrete());
+        this.menuLembrete = menu.findItem(R.id.menuLembrete);
+        this.mostrarSubmenuLembrete(this.pendencia.hasLembrete());
 
         return true;
     }
@@ -202,7 +205,9 @@ public class PendenciaActivity extends AppCompatActivity {
 
             case R.id.menuAlterarDataLembrete:
                 definirLembrete();
-
+                break;
+            case R.id.menuExcluirLembrete:
+                excluirLembrete();
         }
 
         return true;
@@ -211,15 +216,36 @@ public class PendenciaActivity extends AppCompatActivity {
     public void definirLembrete() {
         new DatetimePickerDialog(this).setOnConfirmDateListener(date -> {
             this.pendencia.setDataLembrete(date);
+            this.pendencia.setSync(false);
             this.setTextLembrete();
-            Toast.makeText(this, "Lembrete adicionado!", Toast.LENGTH_LONG).show();
             try {
                 daoPendencias.update(this.pendencia);
+                this.mostrarSubmenuLembrete(true);
                 this.atualizarListaPendencias();
+                this.programarHorarioLembrete();
+                Toast.makeText(this, "Lembrete adicionado!", Toast.LENGTH_LONG).show();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }).show();
+    }
+
+    public void programarHorarioLembrete() {
+        programarHorarioLembrete(false);
+    }
+
+    public void programarHorarioLembrete(boolean cancelar) {
+        AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(this, LembreteReceiver.class);
+        intent.putExtra("pendencia", this.pendencia);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, this.pendencia.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        if (cancelar) manager.cancel(pendingIntent);
+        else
+            manager.set(AlarmManager.RTC_WAKEUP, this.pendencia.getDataLembrete().getTime(), pendingIntent);
+    }
+
+    public void mostrarSubmenuLembrete(boolean mostrar) {
+        this.menuLembrete.getSubMenu().setGroupVisible(R.id.groupLembrete, mostrar);
     }
 
     public void setTextLembrete() {
@@ -228,9 +254,19 @@ public class PendenciaActivity extends AppCompatActivity {
     }
 
     public void excluirLembrete() {
-        this.pendencia.setDataLembrete(null);
-        this.txtDataLembrete.setText("");
-        this.layoutLembretePendencia.setVisibility(View.VISIBLE);
+        try {
+            this.pendencia.setDataLembrete(null);
+            this.pendencia.setSync(false);
+            daoPendencias.update(this.pendencia);
+            this.mostrarSubmenuLembrete(true);
+            this.txtDataLembrete.setText("");
+            this.layoutLembretePendencia.setVisibility(View.GONE);
+            this.atualizarListaPendencias();
+            this.programarHorarioLembrete(true);
+            Toast.makeText(this, "Lembrete excluído!", Toast.LENGTH_LONG).show();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 

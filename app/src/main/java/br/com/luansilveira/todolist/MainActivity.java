@@ -1,11 +1,13 @@
 package br.com.luansilveira.todolist;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
@@ -38,11 +40,14 @@ import br.com.luansilveira.todolist.db.DB;
 import br.com.luansilveira.todolist.db.Model.Pendencia;
 import br.com.luansilveira.todolist.utils.HttpRequest;
 import br.com.luansilveira.todolist.utils.JSON;
+import br.com.luansilveira.todolist.utils.Notify;
 
 public class MainActivity extends AppCompatActivity implements AbsListView.MultiChoiceModeListener {
 
     public static final String BROADCAST_ATUALIZAR_LISTA = "br.com.luansivleira.todolist.BROADCAST_ATUALIZAR_LISTA";
+    public static final String ID_CANAL_NOTIFICACAO_LEMBRETE = "notificacao_lembrete";
     private static final int REQUEST_PENDENCIA = 0xFF;
+
     private ListView listView;
     private ListPendenciasAdapter adapter;
     private List<Pendencia> listPendencias;
@@ -81,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
             public void onReceive(Context context, Intent intent) {
                 Log.i(getClass().getSimpleName(), "Atualizando lista...");
                 atualizarLista();
+                sincronizarPendenciasServidor();
             }
         }, new IntentFilter(BROADCAST_ATUALIZAR_LISTA));
 
@@ -94,6 +100,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
         }, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
 
         sincronizarPendenciasServidor();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Notify.from(this).criarCanalNotificacao(ID_CANAL_NOTIFICACAO_LEMBRETE, "Notificação de lembrete", NotificationManager.IMPORTANCE_MAX);
+        }
     }
 
     private boolean isOnline(Context context) {

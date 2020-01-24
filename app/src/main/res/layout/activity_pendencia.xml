@@ -18,7 +18,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_alarm"
-            android:tint="@color/colorAzulLembrete"
+            android:tint="?attr/colorAccent"
             android:id="@+id/imgAlm" />
 
         <TextView
@@ -27,7 +27,7 @@
             android:text="23 de janeiro de 2019 às 18:15"
             android:layout_toEndOf="@id/imgAlm"
             android:textSize="12.5sp"
-            android:textColor="@color/colorAzulLembrete"
+            android:textColor="?attr/colorAccent"
             android:id="@+id/txtDataLembrete"
             android:layout_marginStart="5dp" />
     </RelativeLayout>

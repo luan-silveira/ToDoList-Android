@@ -62,6 +62,7 @@ public class DatetimePickerDialog extends Dialog implements View.OnClickListener
         setTextDataHora();
 
         DatePicker datePicker = findViewById(R.id.datePicker);
+        datePicker.setMinDate(this.dateCalendar.getTimeMillis());
         datePicker.init(dateCalendar.getYear(), dateCalendar.getMonth(), dateCalendar.getDay(), (view, year, monthOfYear, dayOfMonth) -> {
             this.dateCalendar.setYear(year).setMonth(monthOfYear).setDay(dayOfMonth);
             setTextDataHora();
