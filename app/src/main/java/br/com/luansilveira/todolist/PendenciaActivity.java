@@ -7,7 +7,9 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -35,11 +37,16 @@ public class PendenciaActivity extends AppCompatActivity {
 
     MenuItem menuSalvar;
 
+    TextView txtDataLembrete;
+    View layoutLembretePendencia;
+
     private Pendencia pendencia;
     private Dao<Pendencia, Integer> daoPendencias;
     private int result = RESULT_CANCELED;
 
     private boolean editMode = false;
+
+    private SimpleDateFormat dateFormatLembrete = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy 'às' HH:mm", new Locale("pt", "BR"));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +99,10 @@ public class PendenciaActivity extends AppCompatActivity {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        txtDataLembrete = findViewById(R.id.txtDataLembrete);
+        layoutLembretePendencia = findViewById(R.id.layoutLembretePendencia);
+        if (this.pendencia.hasLembrete()) this.setTextLembrete();
     }
 
     private void salvarPendencia() {
@@ -139,7 +150,7 @@ public class PendenciaActivity extends AppCompatActivity {
                             Log.i(getClass().getSimpleName(), "Pendência salva");
                             pendencia.setSync(true);
                             daoPendencias.update(pendencia);
-                            sendBroadcast(new Intent(MainActivity.BROADCAST_ATUALIZAR_LISTA));
+                            atualizarListaPendencias();
                         } else {
                             Log.i(getClass().getSimpleName(), "Erro ao salvar pendência:\n" + result1.getString("mensagem"));
                         }
@@ -147,6 +158,10 @@ public class PendenciaActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }).setRequestFailListener(error -> Log.i(getClass().getSimpleName(), "Erro ao salvar pendência.")).send();
+    }
+
+    private void atualizarListaPendencias() {
+        sendBroadcast(new Intent(MainActivity.BROADCAST_ATUALIZAR_LISTA));
     }
 
     private void setEditMode(boolean editMode) {
@@ -164,6 +179,9 @@ public class PendenciaActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.pendencia_menu, menu);
         this.menuSalvar = menu.findItem(R.id.menuSalvar);
 
+        MenuItem menuLembrete = menu.findItem(R.id.menuLembrete);
+        menuLembrete.getSubMenu().setGroupVisible(R.id.groupLembrete, this.pendencia.hasLembrete());
+
         return true;
     }
 
@@ -179,12 +197,40 @@ public class PendenciaActivity extends AppCompatActivity {
                 break;
 
             case R.id.menuLembrete:
-                new DatetimePickerDialog(this).setOnConfirmDateListener(date -> {
-                    Toast.makeText(this, new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(date), Toast.LENGTH_LONG).show();
-                }).show();
+                if (!this.pendencia.hasLembrete()) definirLembrete();
+                break;
+
+            case R.id.menuAlterarDataLembrete:
+                definirLembrete();
+
         }
 
         return true;
+    }
+
+    public void definirLembrete() {
+        new DatetimePickerDialog(this).setOnConfirmDateListener(date -> {
+            this.pendencia.setDataLembrete(date);
+            this.setTextLembrete();
+            Toast.makeText(this, "Lembrete adicionado!", Toast.LENGTH_LONG).show();
+            try {
+                daoPendencias.update(this.pendencia);
+                this.atualizarListaPendencias();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }).show();
+    }
+
+    public void setTextLembrete() {
+        this.layoutLembretePendencia.setVisibility(View.VISIBLE);
+        this.txtDataLembrete.setText(this.dateFormatLembrete.format(this.pendencia.getDataLembrete()));
+    }
+
+    public void excluirLembrete() {
+        this.pendencia.setDataLembrete(null);
+        this.txtDataLembrete.setText("");
+        this.layoutLembretePendencia.setVisibility(View.VISIBLE);
     }
 
 

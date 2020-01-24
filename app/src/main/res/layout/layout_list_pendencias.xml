@@ -70,7 +70,7 @@
                 android:layout_alignTop="@id/txtLembrete"
                 android:layout_alignBottom="@id/txtLembrete"
                 android:src="@drawable/ic_alarm"
-                android:tint="?attr/colorAccent" />
+                android:tint="@color/colorAzulLembrete" />
 
             <TextView
                 android:id="@+id/txtLembrete"
@@ -78,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@id/imgAlarm"
                 android:text="12 jan ás 17:30"
-                android:textColor="?attr/colorAccent"
+                android:textColor="@color/colorAzulLembrete"
                 android:textSize="10sp" />
 
         </RelativeLayout>

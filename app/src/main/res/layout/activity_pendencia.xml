@@ -8,6 +8,30 @@
     android:focusableInTouchMode="true"
     android:padding="10dp">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/layoutLembretePendencia"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_alarm"
+            android:tint="@color/colorAzulLembrete"
+            android:id="@+id/imgAlm" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="23 de janeiro de 2019 às 18:15"
+            android:layout_toEndOf="@id/imgAlm"
+            android:textSize="12.5sp"
+            android:textColor="@color/colorAzulLembrete"
+            android:id="@+id/txtDataLembrete"
+            android:layout_marginStart="5dp" />
+    </RelativeLayout>
+
     <EditText
         android:id="@+id/edTitulo"
         android:layout_width="match_parent"
@@ -18,7 +42,7 @@
         android:textSize="17sp"
         android:textStyle="bold"
         android:inputType="text|textCapSentences"
-        android:background="@android:color/white" />
+        android:background="@android:color/transparent" />
 
     <EditText
         android:id="@+id/edDescricao"
@@ -29,6 +53,6 @@
         android:inputType="textMultiLine|textCapSentences"
         android:hint="Comece a escrever..."
         android:gravity="start|top"
-        android:background="@android:color/white" />
+        android:background="@android:color/transparent" />
 
 </LinearLayout>
