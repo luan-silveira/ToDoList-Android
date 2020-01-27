@@ -40,7 +40,7 @@ public class DatetimePickerDialog extends Dialog implements View.OnClickListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_datetime_picker);
+        setContentView(R.layout.layout_datetime_picker);
 
         TabHost tabHost = findViewById(R.id.tabHost);
         tabHost.setup();
@@ -56,7 +56,7 @@ public class DatetimePickerDialog extends Dialog implements View.OnClickListener
         tabHost.addTab(spec2);
 
 
-        this.dateCalendar = DateCalendar.now();
+        this.dateCalendar = DateCalendar.now().setSecond(0);
         this.txtData = findViewById(R.id.txtData);
         this.txtHora = findViewById(R.id.txtHora);
         setTextDataHora();
