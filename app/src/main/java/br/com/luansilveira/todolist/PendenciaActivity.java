@@ -1,7 +1,5 @@
 package br.com.luansilveira.todolist;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -222,26 +220,12 @@ public class PendenciaActivity extends AppCompatActivity {
                 daoPendencias.update(this.pendencia);
                 this.mostrarSubmenuLembrete(true);
                 this.atualizarListaPendencias();
-                this.programarHorarioLembrete();
+                PendenciaManager.programarHorarioLembrete(this, this.pendencia);
                 Toast.makeText(this, "Lembrete adicionado!", Toast.LENGTH_LONG).show();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }).show();
-    }
-
-    public void programarHorarioLembrete() {
-        programarHorarioLembrete(false);
-    }
-
-    public void programarHorarioLembrete(boolean cancelar) {
-        AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent intent = new Intent(this, LembreteReceiver.class);
-        intent.putExtra("pendencia", this.pendencia);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, this.pendencia.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        if (cancelar) manager.cancel(pendingIntent);
-        else
-            manager.set(AlarmManager.RTC_WAKEUP, this.pendencia.getDataLembrete().getTime(), pendingIntent);
     }
 
     public void mostrarSubmenuLembrete(boolean mostrar) {
@@ -262,7 +246,7 @@ public class PendenciaActivity extends AppCompatActivity {
             this.txtDataLembrete.setText("");
             this.layoutLembretePendencia.setVisibility(View.GONE);
             this.atualizarListaPendencias();
-            this.programarHorarioLembrete(true);
+            PendenciaManager.programarHorarioLembrete(this, this.pendencia, true);
             Toast.makeText(this, "Lembrete excluído!", Toast.LENGTH_LONG).show();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -284,5 +268,14 @@ public class PendenciaActivity extends AppCompatActivity {
 
         setResult(this.result);
         finish();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        this.pendencia = (Pendencia) intent.getSerializableExtra("pendencia");
+        edTitulo.setText(pendencia.getTitulo());
+        edDescricao.setText(pendencia.getDescricao());
+        if (this.pendencia.hasLembrete()) this.setTextLembrete();
     }
 }

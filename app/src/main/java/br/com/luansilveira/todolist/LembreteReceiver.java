@@ -20,7 +20,7 @@ public class LembreteReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Pendencia pendencia = (Pendencia) intent.getSerializableExtra("pendencia");
 
-        Intent intentPendencia = new Intent(context, PendenciaActivity.class).putExtras(intent);
+        Intent intentPendencia = new Intent(context, PendenciaActivity.class).putExtra("pendencia", pendencia);
         PendingIntent pIntent = PendingIntent.getActivity(context, 0, intentPendencia, 0);
         NotificationCompat.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

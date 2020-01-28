@@ -33,6 +33,7 @@ import org.json.JSONObject;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -179,7 +180,11 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
                         this.listPendenciasSync.clear();
                         for (Iterator<JSONObject> iterator = result.iterator(JSONObject.class); iterator.hasNext(); ) {
                             JSONObject obj = iterator.next();
-                            this.listPendenciasSync.add(JSON.parseJsonToObject(obj, Pendencia.class));
+                            Pendencia pendencia = JSON.parseJsonToObject(obj, Pendencia.class);
+                            if (pendencia != null && pendencia.hasLembrete() && pendencia.getDataLembrete().after(new Date())) {
+                                PendenciaManager.programarHorarioLembrete(MainActivity.this, pendencia);
+                            }
+                            this.listPendenciasSync.add(pendencia);
                         }
                         TableUtils.clearTable(DB.get(this).getConnectionSource(), Pendencia.class);
                         daoPendencias.create(listPendenciasSync);
