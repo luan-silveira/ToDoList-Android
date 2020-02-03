@@ -68,6 +68,7 @@ public class PendenciaActivity extends AppCompatActivity {
         if (pendencia != null) {
             edTitulo.setText(pendencia.getTitulo());
             edDescricao.setText(pendencia.getDescricao());
+            if (this.pendencia.hasLembrete()) this.setTextLembrete();
         } else {
             this.editMode = true;
             edDescricao.requestFocus();
@@ -103,7 +104,6 @@ public class PendenciaActivity extends AppCompatActivity {
 
         txtDataLembrete = findViewById(R.id.txtDataLembrete);
         layoutLembretePendencia = findViewById(R.id.layoutLembretePendencia);
-        if (this.pendencia.hasLembrete()) this.setTextLembrete();
     }
 
     private void salvarPendencia() {
@@ -246,7 +246,7 @@ public class PendenciaActivity extends AppCompatActivity {
             this.txtDataLembrete.setText("");
             this.layoutLembretePendencia.setVisibility(View.GONE);
             this.atualizarListaPendencias();
-            PendenciaManager.programarHorarioLembrete(this, this.pendencia, true);
+            PendenciaManager.cancelarLembrete(this, this.pendencia);
             Toast.makeText(this, "Lembrete excluído!", Toast.LENGTH_LONG).show();
         } catch (SQLException e) {
             e.printStackTrace();

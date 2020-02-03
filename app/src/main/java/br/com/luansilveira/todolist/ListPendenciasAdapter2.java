@@ -106,13 +106,12 @@ public class ListPendenciasAdapter2 extends BaseAdapter {
 
     private void adicionarSeparadores() {
         this.listItens.clear();
-
-        int mes, mesAnterior, ano, anoAnterior;
-        DateCalendar today = DateCalendar.today();
-        mesAnterior = today.getMonth();
-        anoAnterior = today.getYear();
-
         if (this.listPendencias.size() > 0) {
+            int mes, mesAnterior, ano, anoAnterior;
+            DateCalendar today = DateCalendar.today();
+            mesAnterior = today.getMonth();
+            anoAnterior = today.getYear();
+
             this.listItens.add(new ListSeparator(today.getTime()));
             for (Pendencia p : this.listPendencias) {
                 if (p.isDeleted()) continue;
@@ -206,7 +205,7 @@ public class ListPendenciasAdapter2 extends BaseAdapter {
         this.ordenarListaPorData();
         this.adicionarSeparadores();
         super.notifyDataSetChanged();
-        if (!this.actionMode) this.selection = new boolean[getCountPendencias()];
+        if (!this.actionMode) this.selection = new boolean[getCount()];
     }
 
 

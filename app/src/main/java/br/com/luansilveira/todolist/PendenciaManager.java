@@ -22,4 +22,8 @@ public class PendenciaManager {
         else
             manager.set(AlarmManager.RTC_WAKEUP, pendencia.getDataLembrete().getTime(), pendingIntent);
     }
+
+    public static void cancelarLembrete(Context context, Pendencia pendencia) {
+        programarHorarioLembrete(context, pendencia, true);
+    }
 }

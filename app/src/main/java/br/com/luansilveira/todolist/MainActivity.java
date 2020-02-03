@@ -43,7 +43,7 @@ import br.com.luansilveira.todolist.utils.HttpRequest;
 import br.com.luansilveira.todolist.utils.JSON;
 import br.com.luansilveira.todolist.utils.Notify;
 
-public class MainActivity extends AppCompatActivity implements AbsListView.MultiChoiceModeListener {
+public class MainActivity extends AppCompatActivity implements AbsListView.MultiChoiceModeListener, AbsListView.OnScrollListener {
 
     public static final String BROADCAST_ATUALIZAR_LISTA = "br.com.luansivleira.todolist.BROADCAST_ATUALIZAR_LISTA";
     public static final String ID_CANAL_NOTIFICACAO_LEMBRETE = "notificacao_lembrete";
@@ -52,9 +52,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
     private ListView listView;
     private ListPendenciasAdapter2 adapter;
     private List<Pendencia> listPendencias;
-    private List<Pendencia> listPendenciasSync;
     private TextView txtVazio;
+    private TextView txtHeaderData;
     private Dao<Pendencia, Integer> daoPendencias;
+    private View layoutHeader;
 
     private MenuItem menuSync;
 
@@ -81,37 +82,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
                 startActivityForResult(new Intent(this, PendenciaActivity.class).putExtra("pendencia", pendencia), REQUEST_PENDENCIA);
             });
 
-            LinearLayout layoutHeader = findViewById(R.id.layoutHeaderData);
-            TextView txtHeaderData = layoutHeader.findViewById(R.id.txtData);
+            layoutHeader = findViewById(R.id.layoutHeaderData);
+            txtHeaderData = layoutHeader.findViewById(R.id.txtData);
 
-            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-                }
-
-                @Override
-                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (firstVisibleItem == intLastItemVisibleList) return;
-
-                    Object obj = adapter.getItem(firstVisibleItem);
-                    if (obj instanceof ListPendenciasAdapter2.ListSeparator) {
-                        txtHeaderData.setText(((ListPendenciasAdapter2.ListSeparator) obj).getDescricao());
-                        intLastItemVisibleList = firstVisibleItem;
-                    } else {
-                        if (firstVisibleItem < intLastItemVisibleList) {
-                            do {
-                                obj = adapter.getItem(firstVisibleItem--);
-                                if (obj instanceof ListPendenciasAdapter2.ListSeparator) {
-                                    txtHeaderData.setText(((ListPendenciasAdapter2.ListSeparator) obj).getDescricao());
-                                    intLastItemVisibleList = firstVisibleItem;
-                                    break;
-                                }
-                            } while (intLastItemVisibleList > 0);
-                        }
-                    }
-                }
-            });
+            listView.setOnScrollListener(this);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -160,21 +134,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
         boolean vazio = listPendencias.size() == 0;
         txtVazio.setVisibility(vazio ? View.VISIBLE : View.GONE);
         listView.setVisibility(!vazio ? View.VISIBLE : View.GONE);
+        layoutHeader.setVisibility(!vazio ? View.VISIBLE : View.GONE);
     }
-
-    /**
-     * Ordena a lista por data e filtra os itens não excluídos;
-     */
-//    private void filtrarEOrdenarLista() {
-//        //-- Mostra apenas os itens que não estão marcados como excluídos.
-//        listPendencias.clear();
-//        for (Pendencia p : listPendenciasSync) {
-//            if (!p.isDeleted()) listPendencias.add(p);
-//        }
-//
-//        //-- Ordena por data
-//        Collections.sort(listPendencias, (o1, o2) -> o2.getDataHora().compareTo(o1.getDataHora()));
-//    }
 
     private synchronized void atualizarLista() {
         try {
@@ -241,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
                 .setPositiveButton("Sim", (dialog, which) -> {
                     try {
                         for (Pendencia p : pendencias) {
+                            if (p.hasLembrete()) PendenciaManager.cancelarLembrete(MainActivity.this, p);
                             p.setDeleted(true);
                             daoPendencias.update(p);
                         }
@@ -335,6 +297,34 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
         adapter.setSelection(position, checked);
         int count = adapter.getCountSelected();
         mode.setTitle(count + " selecionado" + (count > 1 ? "s" : ""));
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        if (adapter.getCount() == 0) return;
+        if (firstVisibleItem == intLastItemVisibleList) return;
+
+        Object obj = adapter.getItem(firstVisibleItem);
+        if (obj instanceof ListPendenciasAdapter2.ListSeparator) {
+            txtHeaderData.setText(((ListPendenciasAdapter2.ListSeparator) obj).getDescricao());
+            intLastItemVisibleList = firstVisibleItem;
+        } else {
+            if (firstVisibleItem < intLastItemVisibleList) {
+                do {
+                    obj = adapter.getItem(firstVisibleItem--);
+                    if (obj instanceof ListPendenciasAdapter2.ListSeparator) {
+                        txtHeaderData.setText(((ListPendenciasAdapter2.ListSeparator) obj).getDescricao());
+                        intLastItemVisibleList = firstVisibleItem;
+                        break;
+                    }
+                } while (intLastItemVisibleList > 0);
+            }
+        }
     }
 
     public boolean isConnectedInternet() {
