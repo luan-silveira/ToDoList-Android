@@ -5,15 +5,25 @@
     android:layout_height="wrap_content"
     android:clickable="false"
     android:focusable="false"
-    android:id="@+id/layoutSeparator"
-    android:background="@android:color/white"
-    android:padding="8dp">
+    android:id="@+id/layoutSeparator">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider" />
 
     <TextView
         android:id="@+id/txtData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="#525252"
+        android:layout_margin="8dp"
         android:text="JANEIRO DE 2020" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider" />
+
 
 </LinearLayout>

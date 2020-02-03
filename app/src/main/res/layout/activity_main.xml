@@ -35,7 +35,12 @@
         android:onClick="buttonMaisClick"
         android:src="@drawable/ic_add" />
 
-    <include
-        layout="@layout/layout_list_pendencias_separator"
-        android:id="@+id/layoutHeaderData" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/layoutHeaderData"
+        android:background="@android:color/white">
+
+        <include layout="@layout/layout_list_pendencias_separator" />
+    </LinearLayout>
 </RelativeLayout>

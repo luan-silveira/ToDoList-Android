@@ -191,6 +191,8 @@ public class ListPendenciasAdapter2 extends BaseAdapter {
             format = " 'às' " + format;
             if (dateCalendar.isYesterday()) {
                 format = "'ontem'" + format;
+            } else if (dateCalendar.isTomorrow()) {
+                format = "'amanhã'" + format;
             } else {
                 format = (dateCalendar.isCurrentWeek() ? "EEEE" : "d MMM" + (dateCalendar.isCurrentYear() ? "" : " yyyy")) + format;
             }

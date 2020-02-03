@@ -292,8 +292,12 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menuSync) {
-            Toast.makeText(this, "Sincronizando dados ...", Toast.LENGTH_SHORT).show();
-            sincronizarPendenciasServidor();
+            if (!this.isConnectedInternet()) {
+                Toast.makeText(this, "Sem conexão com a internet", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Sincronizando dados ...", Toast.LENGTH_SHORT).show();
+                sincronizarPendenciasServidor();
+            }
         }
 
         return true;
@@ -331,5 +335,10 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
         adapter.setSelection(position, checked);
         int count = adapter.getCountSelected();
         mode.setTitle(count + " selecionado" + (count > 1 ? "s" : ""));
+    }
+
+    public boolean isConnectedInternet() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
     }
 }
