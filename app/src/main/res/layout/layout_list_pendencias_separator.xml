@@ -6,6 +6,7 @@
     android:clickable="false"
     android:focusable="false"
     android:id="@+id/layoutSeparator"
+    android:background="@android:color/white"
     android:padding="8dp">
 
     <TextView

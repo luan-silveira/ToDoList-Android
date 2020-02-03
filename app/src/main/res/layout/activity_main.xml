@@ -34,4 +34,8 @@
         android:backgroundTint="?attr/colorPrimary"
         android:onClick="buttonMaisClick"
         android:src="@drawable/ic_add" />
+
+    <include
+        layout="@layout/layout_list_pendencias_separator"
+        android:id="@+id/layoutHeaderData" />
 </RelativeLayout>

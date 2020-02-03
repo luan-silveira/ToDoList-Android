@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
 
     private MenuItem menuSync;
 
+    private int intLastItemVisibleList = -1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +79,38 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
             listView.setOnItemClickListener((parent, view, position, id) -> {
                 Pendencia pendencia = (Pendencia) parent.getItemAtPosition(position);
                 startActivityForResult(new Intent(this, PendenciaActivity.class).putExtra("pendencia", pendencia), REQUEST_PENDENCIA);
+            });
+
+            LinearLayout layoutHeader = findViewById(R.id.layoutHeaderData);
+            TextView txtHeaderData = layoutHeader.findViewById(R.id.txtData);
+
+            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+                }
+
+                @Override
+                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                    if (firstVisibleItem == intLastItemVisibleList) return;
+
+                    Object obj = adapter.getItem(firstVisibleItem);
+                    if (obj instanceof ListPendenciasAdapter2.ListSeparator) {
+                        txtHeaderData.setText(((ListPendenciasAdapter2.ListSeparator) obj).getDescricao());
+                        intLastItemVisibleList = firstVisibleItem;
+                    } else {
+                        if (firstVisibleItem < intLastItemVisibleList) {
+                            do {
+                                obj = adapter.getItem(firstVisibleItem--);
+                                if (obj instanceof ListPendenciasAdapter2.ListSeparator) {
+                                    txtHeaderData.setText(((ListPendenciasAdapter2.ListSeparator) obj).getDescricao());
+                                    intLastItemVisibleList = firstVisibleItem;
+                                    break;
+                                }
+                            } while (intLastItemVisibleList > 0);
+                        }
+                    }
+                }
             });
         } catch (SQLException e) {
             e.printStackTrace();
