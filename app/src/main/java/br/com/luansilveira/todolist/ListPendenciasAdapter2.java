@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -58,16 +59,22 @@ public class ListPendenciasAdapter2 extends BaseAdapter {
      */
     private boolean actionMode = false;
 
-    public ListPendenciasAdapter2(Context context, List<Pendencia> objects) {
+    public ListPendenciasAdapter2(Context context, List<Pendencia> listPendencias) {
         this.context = context;
-        this.listPendencias = listSelect;
+        this.listPendencias = listPendencias;
+        this.ordenarListaPorData();
         this.adicionarSeparadores();
+        this.resetSelection();
     }
 
 
     public void resetSelection() {
         this.selection = new boolean[getCount()];
         this.listSelect.clear();
+    }
+
+    private void ordenarListaPorData() {
+        Collections.sort(this.listPendencias, (o1, o2) -> o2.getDataHora().compareTo(o1.getDataHora()));
     }
 
     public ListPendenciasAdapter2 setActionMode(boolean actionMode) {
@@ -186,6 +193,8 @@ public class ListPendenciasAdapter2 extends BaseAdapter {
 
     @Override
     public void notifyDataSetChanged() {
+        this.ordenarListaPorData();
+        this.adicionarSeparadores();
         super.notifyDataSetChanged();
         if (!this.actionMode) this.selection = new boolean[getCountPendencias()];
     }
