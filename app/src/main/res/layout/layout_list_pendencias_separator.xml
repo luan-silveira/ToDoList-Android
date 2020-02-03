@@ -3,13 +3,16 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="6dp">
+    android:clickable="false"
+    android:focusable="false"
+    android:id="@+id/layoutSeparator"
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/txtData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/color_cinza_escuro"
+        android:textColor="#525252"
         android:text="JANEIRO DE 2020" />
 
 </LinearLayout>

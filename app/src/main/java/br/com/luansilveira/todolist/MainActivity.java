@@ -32,7 +32,6 @@ import org.json.JSONObject;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -50,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
     private static final int REQUEST_PENDENCIA = 0xFF;
 
     private ListView listView;
-    private ListPendenciasAdapter adapter;
+    private ListPendenciasAdapter2 adapter;
     private List<Pendencia> listPendencias;
     private List<Pendencia> listPendenciasSync;
     private TextView txtVazio;
@@ -71,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
         try {
             carregarLista();
 
-            adapter = new ListPendenciasAdapter(this, listPendencias);
+            adapter = new ListPendenciasAdapter2(this, this.listPendencias);
             listView.setAdapter(adapter);
 
             listView.setOnItemClickListener((parent, view, position, id) -> {
@@ -119,9 +118,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
 
     private void carregarLista() throws SQLException {
         daoPendencias = DB.get(this).getDao(Pendencia.class);
-        listPendenciasSync = daoPendencias.queryForAll();
-        filtrarEOrdenarLista();
-        mostrarLista();
+        this.listPendencias = daoPendencias.queryForAll();
     }
 
     private void mostrarLista() {
@@ -133,23 +130,22 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
     /**
      * Ordena a lista por data e filtra os itens não excluídos;
      */
-    private void filtrarEOrdenarLista() {
-        //-- Mostra apenas os itens que não estão marcados como excluídos.
-        listPendencias.clear();
-        for (Pendencia p : listPendenciasSync) {
-            if (!p.isDeleted()) listPendencias.add(p);
-        }
-
-        //-- Ordena por data
-        Collections.sort(listPendencias, (o1, o2) -> o2.getDataHora().compareTo(o1.getDataHora()));
-    }
+//    private void filtrarEOrdenarLista() {
+//        //-- Mostra apenas os itens que não estão marcados como excluídos.
+//        listPendencias.clear();
+//        for (Pendencia p : listPendenciasSync) {
+//            if (!p.isDeleted()) listPendencias.add(p);
+//        }
+//
+//        //-- Ordena por data
+//        Collections.sort(listPendencias, (o1, o2) -> o2.getDataHora().compareTo(o1.getDataHora()));
+//    }
 
     private synchronized void atualizarLista() {
         try {
             List<Pendencia> list = daoPendencias.queryForAll();
-            this.listPendenciasSync.clear();
-            this.listPendenciasSync.addAll(list);
-            filtrarEOrdenarLista();
+            this.listPendencias.clear();
+            this.listPendencias.addAll(list);
             adapter.notifyDataSetChanged();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -166,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
 
         try {
 
-            for (Pendencia pendencia : listPendenciasSync) {
+            for (Pendencia pendencia : listPendencias) {
                 JSONObject obj = JSON.parseObj(pendencia);
                 jsonArray.put(obj);
             }
@@ -177,17 +173,17 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
                     if (result.has("erro")) {
                         Log.i(getClass().getSimpleName(), "Erro ao sincronizar");
                     } else {
-                        this.listPendenciasSync.clear();
+                        this.listPendencias.clear();
                         for (Iterator<JSONObject> iterator = result.iterator(JSONObject.class); iterator.hasNext(); ) {
                             JSONObject obj = iterator.next();
                             Pendencia pendencia = JSON.parseJsonToObject(obj, Pendencia.class);
                             if (pendencia != null && pendencia.hasLembrete() && pendencia.getDataLembrete().after(new Date())) {
                                 PendenciaManager.programarHorarioLembrete(MainActivity.this, pendencia);
                             }
-                            this.listPendenciasSync.add(pendencia);
+                            this.listPendencias.add(pendencia);
                         }
                         TableUtils.clearTable(DB.get(this).getConnectionSource(), Pendencia.class);
-                        daoPendencias.create(listPendenciasSync);
+                        daoPendencias.create(listPendencias);
 
                         atualizarLista();
                     }
@@ -296,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
 
     @Override
     public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+        if (adapter.getItem(position) instanceof ListPendenciasAdapter2.ListSeparator) return;
         adapter.setSelection(position, checked);
         int count = adapter.getCountSelected();
         mode.setTitle(count + " selecionado" + (count > 1 ? "s" : ""));

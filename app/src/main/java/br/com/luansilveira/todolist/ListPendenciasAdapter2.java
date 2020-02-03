@@ -34,7 +34,7 @@ public class ListPendenciasAdapter2 extends BaseAdapter {
      * Lista de objetos que incui as pendências não excluídas e os separadores de grupo.
      * Esta lista é a que será mostrada no ListView.
      */
-    private List<Object> listItens;
+    private List<Object> listItens = new ArrayList<>();
 
 
     /**
@@ -111,20 +111,24 @@ public class ListPendenciasAdapter2 extends BaseAdapter {
         DateCalendar today = DateCalendar.today();
         mesAnterior = today.getMonth();
         anoAnterior = today.getYear();
-        for (Pendencia p : this.listPendencias) {
-            if (p.isDeleted()) continue;
 
-            DateCalendar calendar = DateCalendar.fromDate(p.getDataHora());
-            mes = calendar.getMonth();
-            ano = calendar.getYear();
+        if (this.listPendencias.size() > 0) {
+            this.listItens.add(new ListSeparator(today.getTime()));
+            for (Pendencia p : this.listPendencias) {
+                if (p.isDeleted()) continue;
 
-            if ((mes != mesAnterior) || (ano != anoAnterior)) {
-                this.listItens.add(new ListSeparator(p.getDataHora()));
-                mesAnterior = mes;
-                anoAnterior = ano;
+                DateCalendar calendar = DateCalendar.fromDate(p.getDataHora());
+                mes = calendar.getMonth();
+                ano = calendar.getYear();
+
+                if ((mes != mesAnterior) || (ano != anoAnterior)) {
+                    this.listItens.add(new ListSeparator(p.getDataHora()));
+                    mesAnterior = mes;
+                    anoAnterior = ano;
+                }
+
+                this.listItens.add(p);
             }
-
-            this.listItens.add(p);
         }
     }
 
@@ -134,14 +138,12 @@ public class ListPendenciasAdapter2 extends BaseAdapter {
         Object item = getItem(position);
 
         if (item instanceof ListSeparator) {
-            if (convertView == null) {
-                convertView = LayoutInflater.from(this.context).inflate(R.layout.layout_list_pendencias_separator, parent, false);
-            }
+            convertView = LayoutInflater.from(this.context).inflate(R.layout.layout_list_pendencias_separator, parent, false);
 
             TextView txtData = convertView.findViewById(R.id.txtData);
             txtData.setText(((ListSeparator) item).getDescricao());
         } else {
-            if (convertView == null) {
+            if (convertView == null || convertView.getId() == R.id.layoutSeparator) {
                 convertView = LayoutInflater.from(this.context).inflate(R.layout.layout_list_pendencias, parent, false);
             }
 
@@ -159,7 +161,13 @@ public class ListPendenciasAdapter2 extends BaseAdapter {
             Pendencia pendencia = (Pendencia) item;
             if (pendencia != null) {
                 txtTitulo.setText(pendencia.getTitulo());
-                txtDescricao.setText(pendencia.getDescricao());
+                String descricao = pendencia.getDescricao();
+                if (descricao == null || descricao.trim().isEmpty()) {
+                    txtDescricao.setVisibility(View.GONE);
+                } else {
+                    txtDescricao.setVisibility(View.VISIBLE);
+                    txtDescricao.setText(descricao);
+                }
                 txtDataHora.setText(getTextFromDate(pendencia.getDataHora()));
                 if (pendencia.hasLembrete()) {
                     layoutLembrete.setVisibility(View.VISIBLE);
@@ -227,16 +235,24 @@ public class ListPendenciasAdapter2 extends BaseAdapter {
         return 0;
     }
 
-    private static class ListSeparator {
+    public static class ListSeparator {
         String descricao;
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM 'de' yyyy", LOCALE_BR);
 
         public ListSeparator(Date date) {
-            this.descricao = dateFormat.format(date);
+            this.descricao = dateFormat.format(date).toUpperCase();
         }
 
         public String getDescricao() {
             return descricao;
         }
     }
+
+    @Override
+    public boolean isEnabled(int position) {
+        if (getItem(position) instanceof ListSeparator) return false;
+        return super.isEnabled(position);
+    }
+
+
 }
