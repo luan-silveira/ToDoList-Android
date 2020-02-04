@@ -29,12 +29,13 @@ public class LembreteReceiver extends BroadcastReceiver {
             builder = new NotificationCompat.Builder(context);
         }
 
-        Notification notification = builder.setContentTitle(pendencia.getTitulo())
+        Notification notification = builder.setContentTitle(pendencia.getTitulo().isEmpty() ? "Lembrete sem título" : pendencia.getTitulo())
                 .setContentIntent(pIntent)
                 .setContentText("ToDoList - Novo Lembrete")
                 .setSmallIcon(R.drawable.ic_alarm)
                 .setPriority(Notification.PRIORITY_MAX)
-                .setVibrate(new long[]{250, 250}).build();
+                .setAutoCancel(true)
+                .setVibrate(new long[]{0, 250, 250, 750}).build();
 
         NotificationManagerCompat.from(context).notify(id++, notification);
     }

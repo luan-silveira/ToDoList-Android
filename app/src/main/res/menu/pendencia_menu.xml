@@ -18,7 +18,8 @@
 
     <item
         android:id="@+id/menuLembrete"
-        android:icon="@drawable/ic_alarm"
+        android:icon="@drawable/ic_menu_alarm"
+        android:enabled="false"
         android:title="Definir lembrete"
         app:showAsAction="always">
 

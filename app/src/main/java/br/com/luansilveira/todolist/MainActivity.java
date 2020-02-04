@@ -157,7 +157,6 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
         JSONArray jsonArray = new JSONArray();
 
         try {
-
             for (Pendencia pendencia : listPendencias) {
                 JSONObject obj = JSON.parseObj(pendencia);
                 jsonArray.put(obj);

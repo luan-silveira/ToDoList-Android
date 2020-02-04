@@ -159,7 +159,8 @@ public class ListPendenciasAdapter2 extends BaseAdapter {
 
             Pendencia pendencia = (Pendencia) item;
             if (pendencia != null) {
-                txtTitulo.setText(pendencia.getTitulo());
+                String titulo = pendencia.getTitulo();
+                txtTitulo.setText((titulo == null || titulo.isEmpty()) ? "<Sem título>" : titulo);
                 String descricao = pendencia.getDescricao();
                 if (descricao == null || descricao.trim().isEmpty()) {
                     txtDescricao.setVisibility(View.GONE);

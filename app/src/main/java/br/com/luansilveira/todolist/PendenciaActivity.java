@@ -64,6 +64,9 @@ public class PendenciaActivity extends AppCompatActivity {
         edTitulo = findViewById(R.id.edTitulo);
         edDescricao = findViewById(R.id.edDescricao);
 
+        txtDataLembrete = findViewById(R.id.txtDataLembrete);
+        layoutLembretePendencia = findViewById(R.id.layoutLembretePendencia);
+
         this.pendencia = (Pendencia) getIntent().getSerializableExtra("pendencia");
         if (pendencia != null) {
             edTitulo.setText(pendencia.getTitulo());
@@ -82,6 +85,7 @@ public class PendenciaActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 setEditMode(true);
+                menuLembrete.setEnabled(true);
             }
 
             @Override
@@ -101,22 +105,17 @@ public class PendenciaActivity extends AppCompatActivity {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        txtDataLembrete = findViewById(R.id.txtDataLembrete);
-        layoutLembretePendencia = findViewById(R.id.layoutLembretePendencia);
     }
 
-    private void salvarPendencia() {
-        if (pendencia == null) {
-            pendencia = new Pendencia();
-        }
+    private boolean salvarPendencia() {
+        if (pendencia == null) pendencia = new Pendencia();
 
         String titulo = edTitulo.getText().toString();
         String descricao = edDescricao.getText().toString();
 
-        if (titulo.isEmpty() || descricao.isEmpty()) {
+        if (titulo.trim().isEmpty() && descricao.trim().isEmpty()) {
             Toast.makeText(this, "Impossível salvar nota vazia!", Toast.LENGTH_LONG).show();
-            return;
+            return false;
         }
 
         pendencia.setTitulo(titulo);
@@ -135,7 +134,10 @@ public class PendenciaActivity extends AppCompatActivity {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
+
+        return true;
     }
 
     private void salvarPendenciaServidor(boolean update) {
@@ -181,7 +183,8 @@ public class PendenciaActivity extends AppCompatActivity {
         this.menuSalvar = menu.findItem(R.id.menuSalvar);
 
         this.menuLembrete = menu.findItem(R.id.menuLembrete);
-        this.mostrarSubmenuLembrete(this.pendencia.hasLembrete());
+        this.menuLembrete.setEnabled(this.pendencia != null);
+        this.mostrarSubmenuLembrete(this.pendencia != null && this.pendencia.hasLembrete());
 
         return true;
     }
@@ -198,6 +201,10 @@ public class PendenciaActivity extends AppCompatActivity {
                 break;
 
             case R.id.menuLembrete:
+                if (this.editMode){
+                    if (!salvarPendencia()) break;
+                }
+
                 if (!this.pendencia.hasLembrete()) definirLembrete();
                 break;
 
@@ -277,5 +284,6 @@ public class PendenciaActivity extends AppCompatActivity {
         edTitulo.setText(pendencia.getTitulo());
         edDescricao.setText(pendencia.getDescricao());
         if (this.pendencia.hasLembrete()) this.setTextLembrete();
+        this.setEditMode(false);
     }
 }
