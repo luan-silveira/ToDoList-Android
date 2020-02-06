@@ -20,7 +20,7 @@ public class PendenciaManager {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, pendencia.getId(), intent, 0);
         if (cancelar) manager.cancel(pendingIntent);
         else
-            manager.set(AlarmManager.RTC_WAKEUP, pendencia.getDataLembrete().getTime(), pendingIntent);
+            manager.setExact(AlarmManager.RTC_WAKEUP, pendencia.getDataLembrete().getTime(), pendingIntent);
     }
 
     public static void cancelarLembrete(Context context, Pendencia pendencia) {
