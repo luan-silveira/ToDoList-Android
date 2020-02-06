@@ -131,6 +131,10 @@ public class PendenciaActivity extends AppCompatActivity {
                 setEditMode(false);
 
                 salvarPendenciaServidor(status.isUpdated());
+
+
+                if (pendencia.hasLembrete())
+                    PendenciaManager.programarHorarioLembrete(this, pendencia);
             }
         } catch (SQLException e) {
             e.printStackTrace();

@@ -9,13 +9,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
     private MenuItem menuSync;
 
     private int intLastItemVisibleList = -1;
+
+    private boolean pressionouSairUmaVez = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -329,5 +331,14 @@ public class MainActivity extends AppCompatActivity implements AbsListView.Multi
     public boolean isConnectedInternet() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getActiveNetworkInfo() != null;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!this.pressionouSairUmaVez) {
+            Toast.makeText(this, "Pressione novamente para sair", Toast.LENGTH_SHORT).show();
+            new Handler().postDelayed(() -> this.pressionouSairUmaVez = false, 2000);
+            this.pressionouSairUmaVez = true;
+        } else super.onBackPressed();
     }
 }
